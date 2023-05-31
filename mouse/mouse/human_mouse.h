@@ -20,7 +20,7 @@ private:
     int32_t TargetY = 0;
     std::thread MainThread;
     bool ShouldExit = false;
-    int32_t MouseSpeed = 10;
+    int32_t MouseSpeed = 1000;
 
     void MoveSystem(int32_t x, int32_t y)
     {
@@ -43,6 +43,13 @@ private:
             return 0;
         return rand() % maxValue;
     }
+    
+    float getRandomValue(float minValue, float maxValue) {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_real_distribution<float> dist(minValue, maxValue);
+        return dist(gen);
+    }
 
     void ThreadEntry()
     {
@@ -56,12 +63,16 @@ private:
         auto msp = MouseSpeed;
         auto sqrt2 = sqrt(2);
         auto sqrt3 = sqrt(3);
-        auto sqrt5 = sqrt(5);
+        auto sqrt5 = sqrt(4);
 
+
+        float randsmooth = getRandomValue(3, 5);
         while (true)
         {
             if (ShouldExit)
                 break;
+            if(!GetAsyncKeyState(VK_F5))
+                continue;
 
             POINT p;
             GetCursorPos(&p);
@@ -72,10 +83,10 @@ private:
             double xe = TargetX;
             double ye = TargetY;
 
-            double gravity = 5.0f;
-            double wind = 6.0f;
+            double gravity = 1000.0f;
+            double wind = 1000.0f;
 
-            double targetArea = 20.f;
+            double targetArea = 0.f;
 
             auto tDist = static_cast<int>(Distance(round(xs), round(ys), round(xe), round(ye)));
 
@@ -123,7 +134,7 @@ private:
 
             if (Hypot(veloX, veloY) > maxStep)
             {
-                auto randomDist = maxStep / 2.0 + Random((int)(round(maxStep) / 2));
+                auto randomDist = maxStep / randsmooth;//Smooth!!
                 auto veloMag = sqrt(veloX * veloX + veloY * veloY);
                 veloX = (veloX / veloMag) * randomDist;
                 veloY = (veloY / veloMag) * randomDist;
